@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Board | United Football Academy</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific Form Styles for the Player Tab */
+        .loader-container { display: none; text-align: center; margin-top: 25px; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent-secondary); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .receipt-box {
+            display: none;
+            background: rgba(0, 242, 254, 0.05);
+            border: 1px solid var(--accent-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        .receipt-box h3 { color: var(--accent-secondary); margin-bottom: 20px; text-align: center; border-bottom: 1px solid rgba(0, 242, 254, 0.2); padding-bottom: 15px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .receipt-label { color: var(--text-muted); font-weight: 500; }
+        .receipt-value { color: var(--text-main); font-weight: 600; text-align: right;}
+        
+        .file-upload { background: rgba(0,0,0,0.2); border: 1px dashed var(--glass-border); padding: 12px; border-radius: 10px; color: var(--text-muted); width: 100%; cursor: pointer;}
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 15px 20px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-main); font-family: var(--font-body); font-size: 1rem; transition: var(--transition); }
+        .form-control:focus { outline: none; border-color: var(--accent-secondary); background: rgba(0, 242, 254, 0.05); }
+    </style>
+</head>
+<body class="dark-theme">
+    
+    <!-- Navigation -->
+    <nav id="navbar" class="glass-nav">
+        <div class="nav-container">
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            
+            <a href="index.html" class="logo"><img src="images/ufa-logo.png" alt="UFA Logo">UNITED<span>FC</span></a>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-links">Home</a></li>
+                <li><a href="programs.html" class="nav-links">Program/Courses</a></li>
+                <li><a href="notices.html" class="nav-links active-link">Notice</a></li>
+                <li><a href="tournaments.html" class="nav-links">Tournaments</a></li>
+                <li><a href="student.html" class="nav-links">Student Section</a></li>
+                <li><a href="contact.html" class="nav-btn">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">Notice <span class="gradient-text">Board</span></h1>
+        <p class="page-desc">Stay updated with the latest events, tournaments, and opportunities at UFA.</p>
+    </div>
+
+    <section class="programs">
+        <div class="section-container">
+            <div class="tabs-container reveal">
+                <button class="tab-btn active" data-tab="tab-events">Events & Tournaments</button>
+                <button class="tab-btn" data-tab="tab-general">General Notice</button>
+                <button class="tab-btn" data-tab="tab-opportunities">Opportunities</button>
+            </div>
+
+            <!-- Events Tab -->
+            <div id="tab-events" class="tab-content active">
+                <div class="programs-grid">
+                    
+                    <div class="notice-card glass-card reveal" style="padding:0; overflow:hidden;">
+                        <img src="images/winter.png" alt="Winter Teenage Cup" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+                        <div style="padding: 25px;">
+                            <div class="notice-meta">Tournament</div>
+                            <h3 style="margin-bottom:10px;">Winter Teenage Cup S3</h3>
+                            <p>U-16 (2010 or later) and U-20 (2006 or later) categories.</p>
+                            <div class="notice-details">
+                                <ul>
+                                    <li><strong>Format:</strong> 6+4 Rolling Substitution, League Format</li>
+                                    <li><strong>Venue:</strong> Aligarh</li>
+                                    <li><strong>Entry Fees:</strong> ₹1400/team</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">Trials</div>
+                        <h3>Rising Sun Championship</h3>
+                        <p>Official trials for 18th Rising Sun Cup 2025, Ahmedabad.</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Dates:</strong> 9th & 10th Dec, 4 PM - 6 PM</li>
+                                <li><strong>Venue:</strong> UFA Ground</li>
+                                <li><strong>Fee:</strong> ₹100 (Online), ₹150 (On-Spot)</li>
+                                <li><strong>Age:</strong> U7 to Senior</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">Showdown</div>
+                        <h3>One Day Showdown</h3>
+                        <p>Knockout battle for U22.</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Format:</strong> 3+1 Format</li>
+                                <li><strong>Matchday:</strong> 30th Nov 2025</li>
+                                <li><strong>Entry Fee:</strong> ₹500/team</li>
+                                <li><strong>Contact:</strong> 7983295481</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">Trials</div>
+                        <h3>IKF City Trials</h3>
+                        <p>Tyger IKF Season 5 Aligarh Trials for Boys & Girls (Born 2008-2015).</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Date:</strong> 2nd Nov 2025, 7 AM</li>
+                                <li><strong>Venue:</strong> Bhikampur Estate Cricket Academy</li>
+                                <li><strong>Fee:</strong> ₹295</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">Tournament</div>
+                        <h3>Sir Syed Futsal Fiesta</h3>
+                        <p>United Futsal Fiesta 2025 for U-14 and U-18.</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Dates:</strong> Oct 10-13</li>
+                                <li><strong>Status:</strong> Completed. Congrats Brexit FC & Noble FC!</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">League</div>
+                        <h3>United Premier League</h3>
+                        <p>Youth Football Tournament (U17, U22).</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Format:</strong> 6+4 Format</li>
+                                <li><strong>Venue:</strong> UFA</li>
+                                <li><strong>Entry Fee:</strong> ₹2000/team</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">Event</div>
+                        <h3>Hunar 2K25</h3>
+                        <p>Features football, chess, ludo, and BGMI.</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Date:</strong> April 28-30</li>
+                                <li><strong>Venue:</strong> Mumtaz Hall, AMU Aligarh</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="notice-card glass-card reveal">
+                        <div class="notice-meta">Trials</div>
+                        <h3>Bighit Trials</h3>
+                        <p>Team India trials for U13 and U15.</p>
+                        <div class="notice-details">
+                            <ul>
+                                <li><strong>Date:</strong> 6th April 2025</li>
+                                <li><strong>Venue:</strong> UFA</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- General Notice Tab -->
+            <div id="tab-general" class="tab-content">
+                <div class="notice-card glass-card reveal">
+                    <div class="notice-meta">Expansion</div>
+                    <h3>New Branch Opening: Aligarh Gaming Zone</h3>
+                    <p>We are thrilled to announce a new branch in collaboration with Aligarh Gaming Zone.</p>
+                    <div class="notice-details">
+                        <ul>
+                            <li><strong>Address:</strong> Manzurgadi Gate No. 2, Near Aligarh Green Apartments, Manjur Garhi, Aligarh, Uttar Pradesh 202001.</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="notice-card glass-card reveal">
+                    <div class="notice-meta">Competition</div>
+                    <h3>UPL REEL FRENZY</h3>
+                    <p>Video Editing Competition in collaboration with Limbu Media.</p>
+                    <div class="notice-details">
+                        <ul>
+                            <li><strong>Task:</strong> Create a 20-60 sec highlight reel using UPL footage.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opportunities Tab -->
+            <div id="tab-opportunities" class="tab-content">
+                <div class="notice-card glass-card reveal">
+                    <div class="notice-meta">Hiring</div>
+                    <h3>Football Coaches Wanted</h3>
+                    <p>Join the UFA coaching staff and help develop the next generation of football stars.</p>
+                    <div class="notice-details">
+                        <ul>
+                            <li><strong>Requirements:</strong> Minimum 2 years of playing experience. Ability to handle and train young players with patience & enthusiasm. Strong leadership & communication skills.</li>
+                            <li><strong>Contact:</strong> Send your resume/details to <strong>8791393986</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">UNITED<span>FC</span></a>
+                <p>Creating skilled players who embody sportsmanship and teamwork.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Important Links</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="notices.html">Career</a></li>
+                    <li><a href="contact.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://wa.me/918791393986" target="_blank" aria-label="WhatsApp">WA</a>
+                    <a href="https://www.instagram.com/unitedfootballacademy00/" target="_blank" aria-label="Instagram">IG</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 United Football Academy. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Specific Form Logic imported from player form.html
+        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        const ufaForm = document.getElementById('ufaForm');
+        if(ufaForm) {
+            ufaForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const statusText = document.getElementById('status');
+                const submitBtn = document.getElementById('submitBtn');
+                const loaderContainer = document.getElementById('loaderContainer');
+                
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Processing...";
+                loaderContainer.style.display = "block"; 
+                statusText.innerText = "Uploading documents and generating your PDF...";
+                statusText.style.color = "var(--accent-secondary)";
+
+                try {
+                    const photoInput = document.getElementById('photoFile').files[0];
+                    const doc1Input = document.getElementById('docFile1').files[0];
+                    const doc2Input = document.getElementById('docFile2').files[0];
+                    
+                    const photoBase64 = photoInput ? await fileToBase64(photoInput) : null;
+                    const doc1Base64 = doc1Input ? await fileToBase64(doc1Input) : null;
+                    const doc2Base64 = doc2Input ? await fileToBase64(doc2Input) : null;
+
+                    const nameVal = document.getElementById('name').value;
+                    const dobVal = document.getElementById('dob').value;
+
+                    const payload = {
+                        name: nameVal,
+                        gender: document.getElementById('gender').value,
+                        studentClass: document.getElementById('studentClass').value,
+                        school: document.getElementById('school').value,
+                        father: document.getElementById('father').value,
+                        mother: document.getElementById('mother').value,
+                        whatsapp: document.getElementById('whatsapp').value,
+                        mobile: document.getElementById('mobile').value,
+                        address: document.getElementById('address').value,
+                        dob: dobVal,
+                        aadhaar: document.getElementById('aadhaar').value,
+                        physical: document.getElementById('physical').value,
+                        photo: photoBase64,
+                        document1: doc1Base64,
+                        document2: doc2Base64
+                    };
+
+                    const scriptURL = "https://script.google.com/macros/s/AKfycbwFjvBF2IMAnVQeuIhJpxexV3WaJUuZ6jjj7z6LB1wB2RDQGfYyy_7CJS04uHpLrD2w/exec"; 
+
+                    const response = await fetch(scriptURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        loaderContainer.style.display = "none";
+                        statusText.innerText = "Success! Your PDF is downloading.";
+                        statusText.style.color = "#2ed573";
+                        
+                        // Create a temporary hidden link to trigger the download
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = result.url;
+                        downloadLink.target = '_blank';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        
+                        // --- CALCULATE AGE AND CATEGORIES ---
+                        const birthDate = new Date(dobVal);
+                        const today = new Date();
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const m = today.getMonth() - birthDate.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
+
+                        let eligibleCats = "";
+                        if (age <= 8) eligibleCats = "U9, U11, U13, U15, U17, U19";
+                        else if (age <= 10) eligibleCats = "U11, U13, U15, U17, U19";
+                        else if (age <= 12) eligibleCats = "U13, U15, U17, U19";
+                        else if (age <= 14) eligibleCats = "U15, U17, U19";
+                        else if (age <= 16) eligibleCats = "U17, U19";
+                        else if (age <= 18) eligibleCats = "U19";
+                        else eligibleCats = "Senior / Open Category";
+
+                        // Populate Receipt Box
+                        document.getElementById('r-appNo').innerText = result.appNo;
+                        document.getElementById('r-name').innerText = nameVal;
+                        document.getElementById('r-dob').innerText = dobVal;
+                        document.getElementById('r-age').innerText = age + " years old";
+                        document.getElementById('r-date').innerText = today.toLocaleDateString();
+                        document.getElementById('r-category').innerText = "Eligible Categories: " + eligibleCats;
+
+                        // Hide form, Show receipt
+                        document.getElementById('ufaForm').style.display = 'none';
+                        document.getElementById('receiptBox').style.display = 'block';
+
+                    } else {
+                        loaderContainer.style.display = "none";
+                        statusText.innerText = "Server Error: " + result.error;
+                        statusText.style.color = "#ff4757";
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Submit & Download Form";
+                    }
+                } catch (error) {
+                    loaderContainer.style.display = "none";
+                    statusText.innerText = "Network Error. Please try again.";
+                    statusText.style.color = "#ff4757";
+                    console.error(error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit & Download Form";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

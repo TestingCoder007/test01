@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournaments | United Football Academy</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        /* Specific Form Styles for the Player Tab */
+        .loader-container { display: none; text-align: center; margin-top: 25px; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent-secondary); border-radius: 50%; width: 36px; height: 36px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .receipt-box {
+            display: none;
+            background: rgba(0, 242, 254, 0.05);
+            border: 1px solid var(--accent-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        .receipt-box h3 { color: var(--accent-secondary); margin-bottom: 20px; text-align: center; border-bottom: 1px solid rgba(0, 242, 254, 0.2); padding-bottom: 15px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+        .receipt-label { color: var(--text-muted); font-weight: 500; }
+        .receipt-value { color: var(--text-main); font-weight: 600; text-align: right;}
+        
+        .file-upload { background: rgba(0,0,0,0.2); border: 1px dashed var(--glass-border); padding: 12px; border-radius: 10px; color: var(--text-muted); width: 100%; cursor: pointer;}
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 15px 20px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-main); font-family: var(--font-body); font-size: 1rem; transition: var(--transition); }
+        .form-control:focus { outline: none; border-color: var(--accent-secondary); background: rgba(0, 242, 254, 0.05); }
+
+        /* Team Table Styles */
+        .team-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .team-table th, .team-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .team-table th {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+        .team-table td input {
+            width: 100%;
+            background: transparent;
+            border: 1px dashed transparent;
+            color: var(--text-main);
+            padding: 8px;
+            font-family: var(--font-body);
+        }
+        .team-table td input:focus {
+            border-color: var(--accent-secondary);
+            outline: none;
+            background: rgba(0, 242, 254, 0.05);
+        }
+        .add-row-btn {
+            background: rgba(0,0,0,0.3);
+            border: 1px dashed var(--glass-border);
+            color: var(--text-muted);
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .add-row-btn:hover {
+            border-color: var(--accent-secondary);
+            color: var(--accent-secondary);
+        }
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .delete-btn:hover {
+            background: #ff6b81;
+        }
+        
+        /* Hide buttons during PDF generation */
+        .pdf-generating .add-row-btn,
+        .pdf-generating .delete-btn,
+        .pdf-generating #teamSubmitBtn {
+            display: none !important;
+        }
+
+        /* Print Media Styles for Native PDF Generation */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .glass-nav, .page-header, footer, .tabs-container { display: none !important; }
+            .hero-bg, .gradient-sphere { display: none !important; }
+            
+            #tab-teamform { display: block !important; }
+            #tab-playerform { display: none !important; }
+            
+            .glass-card {
+                background: white !important;
+                border: none !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            
+            /* Remove all outer padding/margins pushing the content down */
+            .programs, .section-container {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            h2, h3, p, h4 { color: black !important; margin: 0 !important; padding: 5px 0 !important; }
+            
+            /* Team Details Layout */
+            .form-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                margin-bottom: 15px !important;
+                gap: 20px !important;
+            }
+            .form-group {
+                flex: 1 !important;
+                margin-bottom: 0 !important;
+                display: flex !important;
+                align-items: baseline !important;
+                gap: 5px !important;
+            }
+            .form-group label { 
+                color: black !important; 
+                font-weight: bold !important; 
+                margin: 0 !important;
+                white-space: nowrap !important;
+            }
+            .form-group label::after { content: ':'; }
+            .form-control {
+                background: transparent !important;
+                border: none !important;
+                color: black !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                flex: 1 !important;
+            }
+            
+            /* Table Adjustments */
+            .team-table {
+                margin: 10px 0 !important;
+                width: 100% !important;
+                border-collapse: collapse !important;
+                border: 1px solid black !important; /* Fix outer border */
+                border-radius: 0 !important; /* Prevent clipped corners */
+                overflow: visible !important;
+            }
+            .team-table th {
+                background: #f0f0f0 !important;
+                color: black !important;
+                border: 1px solid black !important;
+                padding: 8px !important;
+            }
+            .team-table td {
+                border: 1px solid black !important;
+                padding: 5px 8px !important;
+            }
+            .team-table input {
+                color: black !important;
+                border: none !important;
+                padding: 0 !important;
+                width: 100% !important;
+                background: transparent !important;
+            }
+            
+            /* Hide the last column completely (Delete buttons column) */
+            .team-table th:last-child, 
+            .team-table td:last-child {
+                display: none !important;
+            }
+            
+            .add-row-btn, .delete-btn, #teamSubmitBtn, #teamMessage {
+                display: none !important;
+            }
+            
+            /* Expand page to fit content */
+            @page { margin: 1cm; }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    
+    <!-- Navigation -->
+    <nav id="navbar" class="glass-nav">
+        <div class="nav-container">
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            
+            <a href="index.html" class="logo"><img src="images/ufa-logo.png" alt="UFA Logo">UNITED<span>FC</span></a>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-links">Home</a></li>
+                <li><a href="programs.html" class="nav-links">Program/Courses</a></li>
+                <li><a href="notices.html" class="nav-links">Notice</a></li>
+                <li><a href="tournaments.html" class="nav-links active-link">Tournaments</a></li>
+                <li><a href="student.html" class="nav-links">Student Section</a></li>
+                <li><a href="contact.html" class="nav-btn">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title"><span class="gradient-text">Tournaments</span></h1>
+        <p class="page-desc">Register as a player or a team for our upcoming events.</p>
+    </div>
+
+    <section class="programs">
+        <div class="section-container">
+            <div class="tabs-container reveal">
+                <button class="tab-btn active" data-tab="tab-playerform">Player Registration (Form B)</button>
+                <button class="tab-btn" data-tab="tab-teamform">Team Registration</button>
+                <button class="tab-btn" data-tab="tab-transferwindow">Transfer Window</button>
+            </div>
+
+            <!-- Player Form Tab -->
+            <div id="tab-playerform" class="tab-content active">
+                <div class="glass-card reveal" style="padding: 40px; max-width: 800px; margin: 0 auto;">
+                    <h3 style="font-size: 1.8rem; margin-bottom: 10px; text-align: center;">Tournament Registration (Form-B)</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 30px; text-align: center;">Submit details & download your PDF form to participate.</p>
+                    
+                    <form id="ufaForm">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="name" class="form-control" placeholder="Enter applicant's full name" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select id="gender" class="form-control" required style="appearance: none;">
+                                    <option value="" disabled selected>Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="dob" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Studying In / Class</label>
+                                <input type="text" id="studentClass" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>School Name</label>
+                                <input type="text" id="school" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Father’s Name</label>
+                                <input type="text" id="father" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mother’s Name</label>
+                                <input type="text" id="mother" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>WhatsApp No</label>
+                                <input type="tel" id="whatsapp" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile No</label>
+                                <input type="tel" id="mobile" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea id="address" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Aadhaar No</label>
+                                <input type="text" id="aadhaar" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Any Physical Problem</label>
+                                <input type="text" id="physical" class="form-control" placeholder="Type 'None' if NA" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Upload Passport Photo (Image)</label>
+                            <input type="file" id="photoFile" class="form-control file-upload" accept="image/*" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Upload Document 1: Aadhaar (Image)</label>
+                            <input type="file" id="docFile1" class="form-control file-upload" accept="image/*" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Upload Document 2: 10th Marksheet (Image)</label>
+                            <input type="file" id="docFile2" class="form-control file-upload" accept="image/*" required>
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn primary-btn" style="width: 100%; margin-top: 20px;">Submit & Download Form</button>
+                    </form>
+
+                    <div id="loaderContainer" class="loader-container"><div class="spinner"></div></div>
+                    <p id="status" style="text-align: center; font-weight: 600; margin-top: 15px; font-size: 15px;"></p>
+
+                    <!-- RECEIPT BOX -->
+                    <div id="receiptBox" class="receipt-box">
+                        <h3>Application Successful</h3>
+                        
+                        <div class="receipt-row">
+                            <span class="receipt-label">Application No:</span>
+                            <span class="receipt-value" id="r-appNo"></span>
+                        </div>
+                        
+                        <div class="receipt-row">
+                            <span class="receipt-label">Name:</span>
+                            <span class="receipt-value" id="r-name"></span>
+                        </div>
+                        
+                        <div class="receipt-row">
+                            <span class="receipt-label">Date of Birth:</span>
+                            <span class="receipt-value" id="r-dob"></span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="receipt-label">Calculated Age:</span>
+                            <span class="receipt-value" id="r-age"></span>
+                        </div>
+
+                        <div class="receipt-row">
+                            <span class="receipt-label">Date Submitted:</span>
+                            <span class="receipt-value" id="r-date"></span>
+                        </div>
+
+                        <div class="receipt-row" style="border-bottom: none; display:block; text-align:center; padding-top:10px;">
+                            <span class="receipt-value" style="color: #ff4757; font-weight: bold;" id="r-category"></span>
+                        </div>
+                        
+                        <button onclick="window.location.reload()" class="btn secondary-btn" style="width: 100%; margin-top: 20px;">Submit Another Application</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Form Tab -->
+            <div id="tab-teamform" class="tab-content">
+                <div class="glass-card reveal" style="padding: 40px; max-width: 900px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 5px;">
+                            <img src="images/ufa-logo.png" alt="UFA Logo" style="height: 50px;">
+                            <h2 style="font-size: 2rem; color: var(--text-main); margin: 0;">UNITED FOOTBALL ACADEMY</h2>
+                        </div>
+                        <h3 style="font-size: 1.4rem; color: var(--accent-secondary); margin-top: 5px;">Official Team Sheet</h3>
+                        <p style="color: var(--text-muted); margin-top: 10px;">Fill out the details for all participating team members.</p>
+                    </div>
+
+                    <form id="teamForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Team Name</label>
+                                <input type="text" class="form-control" required placeholder="Enter team name">
+                            </div>
+                            <div class="form-group">
+                                <label>Manager/Coach Name</label>
+                                <input type="text" class="form-control" required placeholder="Enter manager name">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Contact Number</label>
+                                <input type="tel" class="form-control" required placeholder="Phone number">
+                            </div>
+                            <div class="form-group">
+                                <label>Tournament Category</label>
+                                <input type="text" class="form-control" required placeholder="Type category (e.g., U-16, Senior)">
+                            </div>
+                        </div>
+
+                        <h4 style="margin-top: 20px; margin-bottom: 15px; color: var(--accent-primary);">Player Details</h4>
+                        
+                        <div style="overflow-x: auto;">
+                            <table class="team-table" id="playersTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%;">S.No</th>
+                                        <th style="width: 35%;">Name</th>
+                                        <th style="width: 25%;">DOB</th>
+                                        <th style="width: 20%;">Mobile No</th>
+                                        <th style="width: 10%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="sno">1</td>
+                                        <td><input type="text" placeholder="Player Name" required></td>
+                                        <td><input type="date" required></td>
+                                        <td><input type="tel" placeholder="Mobile No" required></td>
+                                        <td><button type="button" class="delete-btn" onclick="deletePlayerRow(this)">X</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="sno">2</td>
+                                        <td><input type="text" placeholder="Player Name"></td>
+                                        <td><input type="date"></td>
+                                        <td><input type="tel" placeholder="Mobile No"></td>
+                                        <td><button type="button" class="delete-btn" onclick="deletePlayerRow(this)">X</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="sno">3</td>
+                                        <td><input type="text" placeholder="Player Name"></td>
+                                        <td><input type="date"></td>
+                                        <td><input type="tel" placeholder="Mobile No"></td>
+                                        <td><button type="button" class="delete-btn" onclick="deletePlayerRow(this)">X</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="sno">4</td>
+                                        <td><input type="text" placeholder="Player Name"></td>
+                                        <td><input type="date"></td>
+                                        <td><input type="tel" placeholder="Mobile No"></td>
+                                        <td><button type="button" class="delete-btn" onclick="deletePlayerRow(this)">X</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="sno">5</td>
+                                        <td><input type="text" placeholder="Player Name"></td>
+                                        <td><input type="date"></td>
+                                        <td><input type="tel" placeholder="Mobile No"></td>
+                                        <td><button type="button" class="delete-btn" onclick="deletePlayerRow(this)">X</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <button type="button" class="add-row-btn" onclick="addPlayerRow()">+ Add Another Player</button>
+
+                        <button type="submit" id="teamSubmitBtn" class="btn primary-btn" style="width: 100%; margin-top: 30px;">Submit Team Sheet</button>
+                    </form>
+                    
+                    <div id="teamMessage" style="margin-top: 20px; text-align: center; font-weight: bold;"></div>
+                </div>
+            </div>
+
+            <!-- Transfer Window Tab -->
+            <div id="tab-transferwindow" class="tab-content">
+                <div class="glass-card reveal" style="padding: 40px; max-width: 800px; margin: 0 auto;">
+                    <h3 style="font-size: 1.8rem; margin-bottom: 10px; text-align: center;">Tournament Player Transfer Window</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 30px; text-align: center;">Submit player transfer requests and documentation.</p>
+
+                    <form id="transferForm">
+                        <h4 style="margin-top: 20px; margin-bottom: 15px; color: var(--accent-primary);">Team Information</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Manager / Captain</label>
+                                <input type="text" class="form-control" name="Manager" required placeholder="Enter manager name">
+                            </div>
+                            <div class="form-group">
+                                <label>Team Name</label>
+                                <input type="text" class="form-control" name="Team" required placeholder="Enter team name">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Tournament</label>
+                                <input type="text" class="form-control" name="Tournament" required placeholder="Enter tournament name">
+                            </div>
+                            <div class="form-group">
+                                <label>Age Category</label>
+                                <input type="text" class="form-control" name="Category" placeholder="e.g. U14, Open" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Contact Number</label>
+                                <input type="tel" class="form-control" name="Contact" required placeholder="Phone number">
+                            </div>
+                            <div class="form-group">
+                                <label>WhatsApp Number</label>
+                                <input type="tel" class="form-control" name="WhatsApp" required placeholder="WhatsApp number">
+                            </div>
+                        </div>
+
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: var(--accent-primary);">Transfer Type</h4>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 15px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px;">
+                                <input type="radio" name="TransferType" value="New Signing" checked onchange="toggleTransferType()"> New Signing
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 15px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px;">
+                                <input type="radio" name="TransferType" value="Player Transfer" onchange="toggleTransferType()"> Player Transfer
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 15px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 10px;">
+                                <input type="radio" name="TransferType" value="Free Agent" onchange="toggleTransferType()"> Free Agent / Released Player
+                            </label>
+                        </div>
+
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: var(--accent-primary);">Player Details</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Player Name</label>
+                                <input type="text" class="form-control" name="Player" required placeholder="Enter player name">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" class="form-control" name="DOB" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" id="currentTeamWrap" style="display: none;">
+                                <label>Current Team</label>
+                                <input type="text" class="form-control" name="CurrentTeam" placeholder="Previous team name">
+                            </div>
+                            <div class="form-group">
+                                <label>New Team</label>
+                                <input type="text" class="form-control" name="NewTeam" required placeholder="Destination team name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>DOB Proof (Birth Certificate / Aadhaar / Passport / School ID / 10th Marksheet)</label>
+                            <input type="file" name="DOBProof" class="form-control file-upload" accept=".pdf,.jpg,.jpeg,.png" required>
+                        </div>
+
+                        <div id="transferApprovalDocs" style="display: none;">
+                            <div class="form-group">
+                                <label>Player Consent Proof</label>
+                                <input type="file" name="PlayerConsent" class="form-control file-upload">
+                            </div>
+                            <div class="form-group">
+                                <label>Current Team Approval</label>
+                                <input type="file" name="TeamApproval" class="form-control file-upload">
+                            </div>
+                        </div>
+
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: var(--accent-primary);">Declaration</h4>
+                        <div class="form-group" style="display: flex; flex-direction: column; gap: 10px; color: var(--text-muted);">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" required> I confirm all information is accurate.
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" required> Documents uploaded are genuine.
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" required> I am authorized to submit this request.
+                            </label>
+                        </div>
+
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: var(--accent-primary);">Payment</h4>
+                        <p style="color: var(--text-muted); margin-bottom: 15px;"><b>Transfer Fee:</b> ₹400 per player</p>
+                        
+                        <!-- Dummy QR Code box -->
+                       <div style="
+    background: rgba(0,0,0,0.2);
+    border: 1px dashed var(--glass-border);
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px;
+    margin-bottom: 20px;
+">
+    <img
+        src="images/transfer amount.png"
+        alt="Tournament QR Code"
+        style="max-width: 250px; width: 100%; height: auto;"
+    >
+</div>
+
+                        <div class="form-group">
+                            <label>Payment Screenshot</label>
+                            <input type="file" name="PaymentProof" class="form-control file-upload" accept=".jpg,.jpeg,.png,.pdf" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Remarks</label>
+                            <textarea name="Remarks" class="form-control" rows="3" placeholder="Any additional information..."></textarea>
+                        </div>
+
+                        <button type="submit" id="transferSubmitBtn" class="btn primary-btn" style="width: 100%; margin-top: 20px;">Submit Transfer Request</button>
+                    </form>
+
+                    <div id="transferMessage" style="margin-top: 20px; text-align: center; display: none;">
+                        <h4 style="color: #2ed573; font-size: 1.5rem; margin-bottom: 10px;">✅ Submitted Successfully</h4>
+                        <p style="color: var(--text-muted);">Your PDF summary has been generated and downloaded.</p>
+                        <button onclick="window.location.reload()" class="btn secondary-btn" style="margin-top: 20px;">Submit Another Transfer</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="logo"><img src="images/ufa-logo.png" alt="UFA Logo">UNITED<span>FC</span></a>
+                <p>Creating skilled players who embody sportsmanship and teamwork.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Important Links</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="notices.html">Career</a></li>
+                    <li><a href="contact.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://wa.me/918791393986" target="_blank" aria-label="WhatsApp">WA</a>
+                    <a href="https://www.instagram.com/unitedfootballacademy00/" target="_blank" aria-label="Instagram">IG</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 United Football Academy. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Specific Form Logic imported from player form.html
+        const fileToBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+
+        const ufaForm = document.getElementById('ufaForm');
+        if(ufaForm) {
+            ufaForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const statusText = document.getElementById('status');
+                const submitBtn = document.getElementById('submitBtn');
+                const loaderContainer = document.getElementById('loaderContainer');
+                
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Processing...";
+                loaderContainer.style.display = "block"; 
+                statusText.innerText = "Uploading documents and generating your PDF...";
+                statusText.style.color = "var(--accent-secondary)";
+
+                try {
+                    const photoInput = document.getElementById('photoFile').files[0];
+                    const doc1Input = document.getElementById('docFile1').files[0];
+                    const doc2Input = document.getElementById('docFile2').files[0];
+                    
+                    const photoBase64 = photoInput ? await fileToBase64(photoInput) : null;
+                    const doc1Base64 = doc1Input ? await fileToBase64(doc1Input) : null;
+                    const doc2Base64 = doc2Input ? await fileToBase64(doc2Input) : null;
+
+                    const nameVal = document.getElementById('name').value;
+                    const dobVal = document.getElementById('dob').value;
+
+                    const payload = {
+                        name: nameVal,
+                        gender: document.getElementById('gender').value,
+                        studentClass: document.getElementById('studentClass').value,
+                        school: document.getElementById('school').value,
+                        father: document.getElementById('father').value,
+                        mother: document.getElementById('mother').value,
+                        whatsapp: document.getElementById('whatsapp').value,
+                        mobile: document.getElementById('mobile').value,
+                        address: document.getElementById('address').value,
+                        dob: dobVal,
+                        aadhaar: document.getElementById('aadhaar').value,
+                        physical: document.getElementById('physical').value,
+                        photo: photoBase64,
+                        document1: doc1Base64,
+                        document2: doc2Base64
+                    };
+
+                    const scriptURL = "https://script.google.com/macros/s/AKfycbwFjvBF2IMAnVQeuIhJpxexV3WaJUuZ6jjj7z6LB1wB2RDQGfYyy_7CJS04uHpLrD2w/exec"; 
+
+                    const response = await fetch(scriptURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        loaderContainer.style.display = "none";
+                        statusText.innerText = "Success! Your PDF is downloading.";
+                        statusText.style.color = "#2ed573";
+                        
+                        // Create a temporary hidden link to trigger the download
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = result.url;
+                        downloadLink.target = '_blank';
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        
+                        // --- CALCULATE AGE AND CATEGORIES ---
+                        const birthDate = new Date(dobVal);
+                        const today = new Date();
+                        let age = today.getFullYear() - birthDate.getFullYear();
+                        const m = today.getMonth() - birthDate.getMonth();
+                        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) { age--; }
+
+                        let eligibleCats = "";
+                        if (age <= 8) eligibleCats = "U9, U11, U13, U15, U17, U19";
+                        else if (age <= 10) eligibleCats = "U11, U13, U15, U17, U19";
+                        else if (age <= 12) eligibleCats = "U13, U15, U17, U19";
+                        else if (age <= 14) eligibleCats = "U15, U17, U19";
+                        else if (age <= 16) eligibleCats = "U17, U19";
+                        else if (age <= 18) eligibleCats = "U19";
+                        else eligibleCats = "Senior / Open Category";
+
+                        // Populate Receipt Box
+                        document.getElementById('r-appNo').innerText = result.appNo;
+                        document.getElementById('r-name').innerText = nameVal;
+                        document.getElementById('r-dob').innerText = dobVal;
+                        document.getElementById('r-age').innerText = age + " years old";
+                        document.getElementById('r-date').innerText = today.toLocaleDateString();
+                        document.getElementById('r-category').innerText = "Eligible Categories: " + eligibleCats;
+
+                        // Hide form, Show receipt
+                        document.getElementById('ufaForm').style.display = 'none';
+                        document.getElementById('receiptBox').style.display = 'block';
+
+                    } else {
+                        loaderContainer.style.display = "none";
+                        statusText.innerText = "Server Error: " + result.error;
+                        statusText.style.color = "#ff4757";
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Submit & Download Form";
+                    }
+                } catch (error) {
+                    loaderContainer.style.display = "none";
+                    statusText.innerText = "Network Error. Please try again.";
+                    statusText.style.color = "#ff4757";
+                    console.error(error);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit & Download Form";
+                }
+            });
+        }
+
+        // Team Form Logic
+        function addPlayerRow() {
+            const tableBody = document.querySelector('#playersTable tbody');
+            const rowCount = tableBody.rows.length + 1;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="sno">${rowCount}</td>
+                <td><input type="text" placeholder="Player Name"></td>
+                <td><input type="date"></td>
+                <td><input type="tel" placeholder="Mobile No"></td>
+                <td><button type="button" class="delete-btn" onclick="deletePlayerRow(this)">X</button></td>
+            `;
+            tableBody.appendChild(tr);
+            updateSerialNumbers();
+        }
+
+        function deletePlayerRow(btn) {
+            const row = btn.closest('tr');
+            const tableBody = document.querySelector('#playersTable tbody');
+            // Only delete if there is more than 1 row
+            if(tableBody.rows.length > 1) {
+                row.remove();
+                updateSerialNumbers();
+            } else {
+                alert("You must have at least one player.");
+            }
+        }
+
+        function updateSerialNumbers() {
+            const snos = document.querySelectorAll('#playersTable tbody .sno');
+            snos.forEach((td, index) => {
+                td.innerText = index + 1;
+            });
+        }
+
+        const teamForm = document.getElementById('teamForm');
+        if (teamForm) {
+            teamForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // For local files, html2pdf often fails due to CORS or canvas limitations with backdrop-filter.
+                // We use native print to generate a clean PDF instead.
+                
+                const msg = document.getElementById('teamMessage');
+                msg.style.color = '#2ed573';
+                msg.innerText = 'Opening Print Dialog... Please select "Save as PDF".';
+                
+                // Give the DOM a tiny bit to update the message before printing
+                setTimeout(() => {
+                    window.print();
+                    msg.innerText = 'Team Sheet Submitted! You can now close or print another.';
+                }, 500);
+            });
+        }
+
+        // Transfer Form Logic
+        function toggleTransferType() {
+            const type = document.querySelector('input[name="TransferType"]:checked').value;
+            const currentTeamWrap = document.getElementById("currentTeamWrap");
+            const approvalDocs = document.getElementById("transferApprovalDocs");
+            
+            if (type === "Player Transfer") {
+                currentTeamWrap.style.display = "block";
+                approvalDocs.style.display = "block";
+            } else {
+                currentTeamWrap.style.display = "none";
+                approvalDocs.style.display = "none";
+            }
+        }
+
+        const transferForm = document.getElementById('transferForm');
+        if (transferForm) {
+            transferForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const { jsPDF } = window.jspdf;
+                if (!jsPDF) {
+                    alert("PDF library not loaded. Please try again.");
+                    return;
+                }
+                
+                const pdf = new jsPDF();
+                const fd = new FormData(e.target);
+                
+                // Better Styling for PDF Header
+                const logoData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8AXHiAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAACR5SURBVHhe7d0JvKZj/T/wr3NmNGNmNBkzY6lISUKrFiqtkq1VSUVoTyJJWkTRKqWFKCmUUkRJQgsq7RuRCil7iSQl4v693vf/vs7/Opf7Oec5s+Q559yf1+t+zZzzbOe5ru/9XT7f5Yro0KFDhw4dOnTo0KFDhw4dOnTo0KFDhw4dOnTo0KFDhw4dOnTo0KFDhw4dOnSYRJgTEYsjYp2IWC8iNmgu/79/RKweEfMiYqh8YYcOKzaCsm1EvCUijo6IsyLiwqGhoavmzZt306JFi25bY4017rjvfe9budZcc807Fi9efPv8+fNvnjlz5jURcXFEnB0Rx0XEARGxXURsFBErlR/WYeqCIG0cEXtFxEkRcSlBecITnlC94hWvqN7//vdXxx9/fPW9732vOv/886vLL7+8+utf/1r9/e9/r2655Zb6uummm6q//e1v1RVXXFFddNFF1Y9+9KPqK1/5SvXhD3+42mOPPaotttiiuv/971/NnDnziog4LSL2i4jNImJu+cd0mNxgrmikowjSOuusU73kJS+pjjjiiOqnP/1pLSjLGv/6179qofv85z9fve51r6se9rCHVcPDw1dFxAkRsUNELCz/yA6TB5tGxGERceUjHvGIav/9969+8IMf1Frnf40777yzuuCCC6qPfvSj1dOe9rRq1qxZf4uIz0XEFhExXP7hHQYPsyNix4j4wRprrFHtvvvu1XnnnVfucyts/h/+8Ifq17/+dfXf//63NomE0Xu87GUvq44++ujyJfXzTzjhhOovf/nLyO+8z3j43e9+V7373e+uNtxwwyoiLoiI10fEgvLLdLj7IYLbIyL+8MhHPrL65Cc/WftB4+GUU06p/aJnPvOZ1aMe9ajqPve5T/WqV72qfmyDDTao1l9//eptb3tbtffee1crr7xy9Z73vGfU61/zmtcQjPp9EgglX+3ss88e9dw23H777dWpp55abb311t7n2og4sIlEO9zNEOq/mu/EAT/55JOrO+64o9y/Gnypr3/969U555wz8rv99tuv2nHHHatNNtmkjviuvPLK2j+Cxz72sdVBBx008lzO/VOe8pSRn6+++urqwQ9+cHW/+92vfp+EG2+8sRa2T3/60yO/6wc//vGPqx122KEaGhr6S+Pw8w073A3YMiJ+yn8SlY2F008/vVprrbWqhzzkIdW9733vWpAIRgKtsXDhwlqDJGyzzTa1cB188MHVa1/7WjRDde655448vu+++9ba7ZBDDqk222yzkd9/61vfqmbPnl1dc801I79LYJZf+cpX1lFmLxCwZz3rWYTzkojYqfzSHZYf1oiIYxYvXlw7w//5z3/KvRmFq666qpo/f3516KGH1v4P+uAxj3lMbfqSPySCW2mllWr/KoH24Kcxd3ysBz3oQdUHPvCB+jEBAEE744wzaqH1vKTp3vrWt9a+Uxt23XXXau21167+/e9/lw/dBV/72tcqN01EfDMiNiwXocOyxYv4IuiCP//5z+Ve1FroC1/4Qq01EtAKKIYcTN4KK6xQffOb36x/Jiirrrpq7bAnbL/99tWLXvSikZ/5TENDQ7Wp/dznPoc+qGkE7+3/v/3tb+vn0XKEscQ//vGPas6cOa1BQC/ceuut1Tvf+U4a8F8RsXe5GB2WHitjxTnXJ510Urn+NWz26quvXj384Q+vaDPmjr/ziU98olpvvfXKp1cbb7xx9Za3vGXkZ9rhTW9608jPL3/5y2sh+dOf/lRTBTvttFNtTv/5z3/WvtVnPvOZWrgRpLQXzorQ3fOe96xNa4lPfepT1dy5c6ubb765fGhc/PKXv6we//jH016nR8Ra5eJ0WDI8IiJ+w++gadpAW9i0L33pS/XP1157bfXoRz+69n34NTNmzKipgRxM4Tve8Y6Rn2knwpXAIed3+d1GG21Ub6wN/slPflKz66K/BE49QfRZHHesfYmHPvSh9XOWFLfddlvt1zXR41blInWYGF4cEbcwByV+9rOfVWeeeWb9//e+9721oOTALa244op1pLjVVlvVfhVtA/wij/3iF78YeT6hJGhJYGg773H99deP0jI2uIw8aa3vfve79WcRRCmdJz7xibUGxO7TeD4Pf9UvmPW255944onVKqusQsD2LRerQ394K+6oLeITys+bN6868MAD65/f9773tTrMBIq/Q0iYSP4QWoImOuyww8qnLzMQJCYYP+ZzRI/8s4svvrh8aiu8/oEPfGC1YMGC6pJLLikfri688MJai0bEkRGxQrlwHXrj46InZicH0pM5WW211aqvfvWrI7//+c9/XpugH/7wh6Oez3zusssu9f9pIkLKmW/brOWJb3/729XOO+9cc2Wbb7557Y/1ohw85nk07LrrrjsSbZagSb1XRJwaEbPKBexwVxztbvzjH/84aiFFSHwmmooGgmSqAD1AE/Fv0AgivlmzZvXFgCd4L+ZRgIA9x7jjsNAEItEXv/jFtaDSgm984xvrtIyUjhvguuuuGzedo1rigAMOqPm0X/3qV+XD9echXPlyr371q2vydiygWl74whcSrm931RNj41g+Sk5eJtg0Woojjk6gnfBHieHGDVlk/gezKEI8/PDDy7cZBcKAL3r9619fp3C8N81XXn7PLIv4Zs6ceZfHXegLGgYByl/rFWgAIjZ3/t1EAgLEqmj1N7/5TR2BEtoEfp0gJc9LgnUh7BFxblcD1o4jRU42eyzI3dlI/hL/pSQbaSzhfptwgoiRMG655ZY1/5QEg5A++9nPrt//s5/9bF2TJZJEKdhMDjznH8FKaJhTTjvTRQu94AUvqLVNLmw07Mc+9rG7aN8c/n5/C23ocyS++VaupI0FBXwuNArKBQlb4qUvfanPPLOpOevQ4P24JsVz48EdypS4sycC5oUJoxVsOs3z3Oc+t9ZqzNJ4DH4/oFWw+ASXoNBySciYUsLahvJmYgbRJYC09XpUw6WXXlqX/khL5flJ8NnPf/7zPffEcnGnK17HGf/9738/aqHGAm1B26AZxgOT+bznPW9kg0WHH//4x2vNtbzBF0SkikTT56vHkgrqBb4kukIlhf9LNeXJcJCzdIOUAokKedKTnuRzDi0XebphCw52eSfjhFAFTEkvP+moo46qN0pE2IbLLrus1hppQ5/+9KePpHDuDnz/+99PGqW+fL88N5kgCuTzoSaYdOavDApEx8cdd1xrZMlU0/5u2HKxpwukJq53R+c49thja/8CWelyxz7jGc+4iy/F+eV7lIvLJHzoQx+qI0IbqEphIpHh8oYbgVlMAsanS8RtCWtDe00U/My5c+feERGPKxd9qkMd1Q9VZ+aQ7+OX5HcyB1qCGJ0wHhCHj3vc4+oN40hjqQcVuC1m2d+qcqLU2qD0BoWiUWMscPJL+uKLX/yi974yIlYpF38q4yApGD5BjhTxWZQcuCWaSxjeC4Qyaal99tlnuTRJLGugHZTiJO1F05b4zne+UxOmghXcWg7pIs0aD3jAA+rv7sbK4cadTs7840sh4RcgD0F4bpFT7VMCeiEvh8nx5je/uX6Nu1uV6GSDAAOd4DvgpEqzf8MNN9TlNpx22onfifdCJMtHiiDxcCXHxV8TQUfELuUmTDXgWC4qVbuabyF2Au1jkTHRwO/ia6hpysE3QRl47pOf/OS6xGWygvCoAfNdmPM2Hg5vJ9Wlrt/zuAyClHvc4x51Ur4NsgLDw8N/j4jVys2YSjhg0003HVUdwEHlQ5ULqQIB18T5ZgrOOuusUY8L5VUQWGDRX2lWJyukipLfVRKrCNkUiKAjmEcM/V577TXqeSXcoE1P45TEOsPDw7fmdxbCT+olCQ1/Ijd3fAaPC61zYMGTky40n2rAz/luzKPS6l5g5pj/nNxFoKJp8pow68WViIinlJsyFXCCPFoOZkw5CW3Fr0CUfuQjH6kfkzbBLpd3LYcXJ2XhsdFTFUhc31Gai5ksgetT45VuStyWzIK8pohYyU6OhsH/xVQrs3m0hoby7qORLACKgVpXWpJA6LDIZVGdSgMLXgrpVIR6M9/VjZQnrUHVRapITe4EgeJCcAv0ROL5cjRaXkPvlMHpb3/720e+oLtL50tqKtVBQ3M99alPrSMb1QGqFESLORT0Wejttttu1O+nMjTU+s5lg4bARY/ktttuW1MxyGQpoASJakx/DhW3EfH7iJhRbtBkxCb8gFxIUAk0VL4QSkI49jSbhcoL+UA6xgLrjCnD8akO1Q++uzRWDo683+f9jgm0XJtWd/NGxM7lJk1GnJKXeeBWFOulVvYSIpycegDcjbKWNhJwOkCyWRCDViibQnRo5xrcWimhkaRuS+w3WuvCye5rPXDu3Lm35/ySzuJFixbVpR8K48qIrw0pmaxOarpCCsga5F3XIMNAi9P21okLwddKaTGuhQR4goQ2a9F0kk9afMjdkyD6k2BGKTCNUg60EEdTtWRuGhMw6RaUMz/d8YY3vKFei7LiA52gk0nvY0qH0XIyEgIjwpZ3GrlBmx7FSQllslfnQzhENu68PNKTymH6LBhHNI9++FIpD5ZSPtMZMg9cAsJS1mIlyKuqP0MuK58hhJLdicYBWm7RokW3R8T9yk2bDNjOF0pChH9SwmvoRRssSD4OCCRlCVw/BX3TBTS7NZF8zqH4Uee2Nn7dSYQqCdMxxxxTM/l5XZfXN1NtJh1OzudJqZtSPanyU/LUQI+STsjhrmI25caWRdnwVAJ/ChEqT5jA1DF5qUJCqxuH3zpaP/9Xn5/A79JhPtmc+AUzZsy4qS2CU9UgDcOBp9K1OGGRyxGOxgO5M4888shRv+8wEtndhdt617veVRdFAkFThpTGKbEGeToNidpUVDy83LxBxvYaLhP4A4ZilH4SR5P6Rj/koTFKgi/hLuvVsDndocKB75nP4bLOOEN1Wr2Q+7dNwtsI8UmDz+RMO/JTSKx1Se2QLyRZmj+eVyckP+KDH/zgyO86jIamWmskG5FDFJ538GDomT2lSmq4lCQlNJrvvHLzBhUzI+KyPBpM0N715S9/uc5x4bEkndVilQVqaqv4YmM1fU530OR8UHVq+SRCa3naaafVfCHG3sgl1bqE0MXFSOD3Llq06N/NMLuBx0ZMWFmUB3KDeCmsO8FyCY1Tyzwwl7qKLcp0gkEgE21Ja0qP7zIZ2toZu0SI+K/8WALGoS87ftS7RcRzyk0cROxC5SYQJl+QAKEfZNilbeS52ghRVZIWi2ZbnnCXy7Etr7yjcp8y/dILuDtjAbgIE4GSZmuVKm2B4KR6f36rnCEL0asQ0vyJiPhAuYmDiCPzgWZNt0h9sf3j3ZWiGuReai9fHrDg7miT+Hq1Xi0t1K4LTMqynzbgmawPZ7xtJlYvEEhBjuiu1ESm6nhPtIS6Nb0E/DLdQHnHeeNnOQto4HFePtOKIOn89eUsNF4KDyMxLbWT30nuNJUNtNryAqFS6mzR+SdtGosZ/8Y3vlHXObmkQPq5CIh/VRWkm6mNcsnhO6e/h8/ZNlt1LDQzG0ZpxzRABLXD18VtPec5z6ldDM9lPRJ83pw5cxw25fCFgcWc4eHha/kLvaAcWZqBZkKY5oLFNPnibRP8lgV8VippdkmCl4IlgkodM8viUm49FkTP6bkOPpgokrbLoz2Ql1X0x0wqmMTEi8h32223UXNcuQTrrbee5lanoA0s1l9ttdXuTM64uxFpZ8GU0LqLcqe+JEX1zVmk5dW5nEL0dJWChVRclkLl0gDRC7SM2ameZ9PLKtF+wHR6vYrSHAb30oBKatzIpebMTXTjwG9TbuYgYXN8VQIzaPCrDfQlhccYd5uXz35KMGCWus47dkxvQQa6lHsIndOV/+xxwUGvNijIW9tdpWB5bSkYS3NpdhjLh0vtXq68iURulCbqB7SwsmRuRo40eqmEgAljn5OotFhE7FZu5iBhV9KfkDuUtFcaw2MGlGSpn3NoHEBV5ObRHV9u2FhX26CNhGYg/8hVClaKspb24oQz82PNHEUDJJ8nL9RzU/Ez1VS1Rc1t4LPe6173GjdLQZiYRBUjuU/WWIqDy80cJOynorEf2OS8ld6drSy5LGSzGOXG9br0GfYyJ2muVv78UrA0e6i8RM5itDV7+nz/TuRqq9zMwQyZQ+9v8Hl5JMikpb9PL0A/aCb6jXL8JZ5ThzlNrCDATSuIKtdIsWVEHF9u5iDhUMVlCdqWes1Q0Ofmrk2wKBanrNPuV7CY2LG0FcGiEfPXlIIFho9oYFieaArt6suciQSlQ1q60mPch7EqQBIIjefnw4BRCgholsGIS48TrHzNE4xLiogzys0cJBybz1zQvsT+I/8U8QuNcVxSNn6Xbyqz4cuXYxDbBAs3I3HNZEi6MiV8sbHQr2AhdPvZzDbQPOOZI4ENysXn49Hy4+9S04SqD9/P/8frcgbBkeeKAhNYANN2mHdkLbeDAJrxwMfNGzOaEpoflZs5SPhKPj9dJILTUntlgbQjCfeVGZesNG1jccozAdsESyGbxVLcVuYZe6FfwVoaCCDk6MYCkjh9fk4v6EpKvzdq0pr5P1M53k3j/CDPLfsI24BeMAsjryilKSPi/HIzBwmnKo9ZEjRfrmaIc7QJltruiYJgiVgnIljucjSJpC7CtO3SlmZDDbf1nnzHPCmcw43ANHmeiDYFKf6G5rTV+l8+GMfdXAa/o+17pWTA5GfPaztsoR9ox4+I3w1y0d8ZS9pJk0L98gDJNsHSjTJREKw06Gw8wSIAtCtTW372eJfRjr3SUeiU9Lx8yImSlvR7QpIgY6E7XHPvWIN/URVe2+sAq/FAIw4NDQ20YJ1WNlX2i6SxHBWSo02w8FFLgn40lnLflGJZkovf1FbZIbWSnpPTCwr18Hvl7ycCmtPrl1RjcVlWWGEFHdIDK1inlILRL5KPVQ5cayMt+VgTBfPEcc3fhxNbckVKTMrPm8hFu5Rg2hCYHmcKc34r0QsoDvQLweZ/lpfX9AoqVIJ4j358rDYYM9k0sQ4svlAOVesX1LHFQZ7msKA6gPPN44eUXMx4ULYrQs3fJ+8iAhtXPqffS6QqudtmBtOEZ1dOL6g0yN8jEaa9Lp025TBfSPTFkk4zbEjon5WbOUg4vBxs3y/cqRan5JDy7H+63N1lcdt4kBg3eCR/H32MOdJhTy58kvoo0Rrn3aa1XTggYX6Zi0tAL+CTvKfS7HwkkfdXgMfhdyFwdTDll9+50t+elyQlpDa5vON5ImjmYny33MxBwkHyTksCG8BZbqsc5XvkAuESKZU1SGMhheT5lZfpQp7SKaPTJUWaj+oqqxf4dzQvrTnW5Xs2U/nqpHU5M6zJ9Y061cxrejW1lmhq5k4qN3OQsHs5OieHL6qMBFclp5jOUU7g86iRKovjOKWlULiw5G2mJwctZCMMgc1fy9cpu4ZSAKF4rnTqlwQI00QvyB0uLYwi8F4l3eJ4OXxXHjQQLCdi9HODNAOFDy83c5DwTDmwHDZIzRF1zn+ReuHbWJySJOWUM0E5Gw04HGUlpWC5pIZUA+iwFpKrqCBIQnCOsTQGM9gMwhi5yhnzIELjK8k5LgvkJ1HopdTbRzssyYWGSJqbWUxnMxIgfBezWcINac3HG6fZ3HT7lJs5SHikrHx+t8v9SbvIoCvkK4UmR2Kl244xER2mA5Z6XXJiPivVOLnUe9NEuWNMGHsx9th5KaelBb+s/PuW5aWiAVgBgtaL2+OjCnaUL/GlJNoJY24VmjMPty83c5CwcPbs2f9Ird/+eHmxfs+wSZNleqlvd25+FNx4F59NC1lOIRC8sWq2VDWIvpYGKAxNDMygig0XoZcDTOcepiv/uXy8fK4rvV865DMNXyuPIhYk0JBuLBotvd7fxN3I00RNe9jG5WYOGi5IrHJiu9s6bmy4uzqvfmCKCM5YPJXXpCTueJeRk2nhXczhWBUQgHLgm5T+10SgZEXpDJPsfdLl5/J3E3k8vzjqhCf5jvnB6SA3y+2gjQgY/4uWtjd83NTUwkddsGDBTZPhaJQv53VE2ouw0dINNJGcmhDbAAt3Utk8wJdStDaW82xRVEEI30thcnk97kgZCbOosE1XdVkK3QuEt9cpGIMGvhUBygenqLAQ8fYy9zmsUUT8stzEQcTe+YFKHG+TjjnRmG/pGMd3iJjcdeX5OBopCEdbJ3UJFIW7EenoM5k8zL07GlQI0JbjlbK0oa2sd9Ag+LFW+bRpEMj4PW4MTTFW3b2hK87hLjdxELEZH6VXhh/QDDQOTVL23jkJ1aL0W4naCxPhuCYr0hRpJG0O5c358SmCFQ48clX6Jk9jNdWnryg3cRAxf+bMmTfkHBXBQQWIDN1FBMr5y744AcsFi0DQbBzNsRoRpjusE16LI99LuxIk9I9oXNonHZGSmlXc/A03tmG5iYOK0/JkNNZbNKaeneplmtwpZUolgY9G6Ja0DGQ6ICXnx+OorLcGijRJkflMeVaBTFMuM1xu4KBiz3wYrUgnr8eW21LPnRx0d19eyIabEU6XLU0d/j/4lASr9FFxgbSUzAargKRNZc7labaqSI1EKDdvkLHeggUL/tuWblHMjw0WjhMgzrbIpjyAO01SaSv+n+5ITarOlS6RfCukKauglMZa01QqRXO3ozlMYOty8wYdP2YCc2B9VVhigaV00BA4I82Z7H7ucIvscFrLggWfakjtXmWFB5JUAwvyU3RtqqKbVoMqPyt32lmRWbNmXddMt55U2Ds3h4TGDAELgjTV35ay9Ow/ATOqO0cqgiu12XQG02dN0qzRBBwd9yLvoLbmkv7mkeH88gxI06wxKWiGEveZM2fOrfmpFAhSY3MSsOJyXgr5TPZDYuZaCxOP4FT10E1O/n9IN2d+HiHQVMknxciXtVk4vxRlW+PmlNYnlJs2WfDVthntNBCGXSWBlANqwh0nVVNWQaYIsWwLm45INWVlZYb0mLxiumnN0yc4iUs0wijnuow5cITyINe4j4ctNCzktj0x6zpWyqpL0SIyL48QOZuSpIRwvP66qYxUWq0atWzWkP/ju+KkTJah4RPbLj2lWSM/K7IZjrJnuVmTCe6I8/PB9YSjLcWga5cQErqy6TOVFavpGiuHOJXBp7I2vSpF1MIzh2gaz6OhaCz+LGI6QeXJ7Nmzb4yIe5WbNdmwK7PXK8UidFaOrF5KGa+Fw7qX2imZxF7H0U1lNHNCqz333LN8qOai0ulfHHdJfetIwLDsUjm5xWgOejqk3KTJiHtExKVlaxJ6QUcOE2dR8hopEQtGuez+TaRgefrVVIYku+8sai7XQzpMo4mkPhcDEZom7rhhHYucNxBLq82bN++WyTJ+ux/sypnMyTmHaVuIssGV+k7Hp5lKl4ODn0qMFf1NdajwwOWhCvITKIDA0Uh514+bNVWLtqEhnaeEtkpwBvGFeUpBgV95QABey52pvJlal18sSVavSXVY+XSVqQZVHmmijoqEHG6+NGytfIyT7vclHSHynjVrFt9qYbk5kx1bEohe87K0iaecVhoIy3ziuFLjQIJoUoTEoS/Pjp4K8H1FcrRVr+G4tJPshfXitCeodKDJygHDqnIjYq9yU6YKvl7Oe7IQEqdqsflceC9lNYmV9xiWvmyFV4qbupb5GFMFbjA3E6EqNTKCs8xCmManyYQG47jjsPhZebDU+Gm/bY6jmZJYe3h4+J853UCDIUYlRBNk5M1wSlAhyXcotZ30BrNJuNqI2MkGN4jvosaqLfnumDiP4/VyCod7QJgIpDLlfPSkNWvGIT2x3Iyphj20WOV8lBJl/lTbJGXRIW0m5aMcpCxq49RKVFtwsxP6qfMeNKhPS8cXSxqXjbwJ6vD1CniuBL5AxtinpJ0IXnm+Y3OYwRHlJkxVnFVyMtQ1lZ4fN+c5FtvwDHBGT3n4I3Bmm6No6/B7sjRCgB7KNF5Jo0mplRNSRE2bp/kYhDB9Z1xXWQ7ezLW/xMEO5QZMVdw7Im4sz4DWysSfAg0SFi0XEuG3AKDXpBnmIbW0u1PzefGDBgLku/pbXenI3RxMnEYUpi81iKirYv69Vgm3+WEm/CCZ80k0ns8KRMQm5eJPdTyLWi/b7DnpJs4QkLKMBq/lLu3F4oPxjkyizcLgI1MHKQ1E87gBEmXCjJc9gSD1Ii+orR7Xl8/Gak5GvUuuNQGRypmPiDeViz5dcKDmirxpghAoDeGs50hzNktiFG/T1t5lboHo0ms4r1IfvczM/wLKfrDgadaoiLYci5lDJWh+mFIOfqTvlOrYS0h7RcQJ5WJPN5yoNjsHU6fUg+8hOkzdvpzTEqIhLeNti4ypl2PU0+j1TAMT0qYhlhcMjjvooINGurfVl6EEek3nS1CpMNY8Vymctgk2ouOI+PlkrAxd1phlxnh5yBDYEBpNNKhdvoRSXA4/00lo+GVt3c4iSbOp8lGRIip+DeZ6WRYRMnWiOucFEvr0eRxsVRttM6toaad35TSMagbOfAmHXukT8J1KErQ5CeyKqZQLXFosioiL8wPKx4PKVCSiDQStTDRcrzxZgtolBxlIe6RNp9Fsoo1Xv6Syoh+zaXM1KiAtmVpMeD5XQoUBH0mQUhK8OZoZoHXmIfFXGHe/U06UQAD5XSWlAMpkhoeHb4iIh5aLO92xVkRcntcOjQW8loUXDSUnltMqfFeWK/zGi/Vy9BXLETIt6OU0ZZccHX9I7hJ563N0xTA/+iO9RtVm+Tpd4LSvVFNbl1IbCJ0kvR4B88Gw6dCYtfpG0PVs5oW2rjIqFjmvtNJKqhamXQTYL9aNiMuo+7GQjvgQaksRMTPpJDG1SISCMDB9zGg/GywIEIUyr0YvEiSFhaI3bHZ+ISe9t0l6HGV+nDqyRAksCQiMwISwKyVK+T9CQ6C1yrtZymmHSrmNjpoOzPrSgua6KD9AO0fqqctTOMygBW9GHo74KqkKoBytOFHQEPnVSwv2wlhmMMHNhPw0xEQCWuHjePMr0BYzZ868PiIeUy5ih3bwuc5RF19SCaIpWqWc68AB1/5UNl2gHWgdUIKDbMSFYer78aOWFhxtZns8qGhQrcHEMuX8PJREXrmQoxkIoj1+g3LxOoyNFSPiOBqnJFHbIBLj/JanwHPu5SaZK86+jeZMO8We/8RMai5QXEhbGAUg/9iPlklTjYHPhgEvB7upUKBFx/sOCvYw6vnfzzynY5AT3GgOKYiI7zQ3YIclxD46UMaru1IygmkvZxnQAHKMJSHJ0fe+DpUifM0czvp3hmjoNuZncdZpHKmV/EQJ5lbzRyrZseE4qrbgQ6TYz/x7ncvlyMccghTPiYiPTqZBHoOMzSPiT1IZY6VnhPY0HCoCX2QQGyqB04upLpO0HPtU/kw7SCMhWlVbEBARGvMpSlMoR6Ok6gqpIoJI8yX4/Pzo4gTjhHz+eL4ZIS3TWAnSOvPnzzfS8aXl4nRYOlD7X+IjpWqHEswRB5hPZVY7uoBpMVJJhJfDJvPJUmOGSgC5y+TTKaMmDAlMrXqnNLuThlPSIyJNwqCOH89U0gEElTOeV27wofIDv3tBpNkM+jgnIh5ULkqHZYedh4aGruYT9UqLECY140lDCOGZqZx2YBZtdjquTZolz08iIQkSbokQMWfSKMCM6tcjZNJN6TQNRKfXtB0yTjsiYZVbow8IdVuKKoHvxiwuXLgQP/Xmydy1PJmwWkQcRTPxj0oTV4KAERC+E3OjBJpQ5UN4PS4/mcDJZ0a9vwiMicVZeS8aCCVAMIzdZhKZUprK7xPBCfg1Zvn444+vn8fnYxoJfy/TyOFvfKmvRcT65ZfvsPyxaUScSXvgdEoTlIMGQEUYnKF6opwWSOjyk8f4XmlIP4gUCYZ/BRJyk/ixNEs11fLTXv4eGlWjLpNMgPlmuSlsg3ozPlqTRN62/LId/vcwPOxsG8qETZSfYiIx6nmrmbQM4WG65A9REnwwNASByptCaCMcFGpAVkDiXPkwzYVmKDm3EvJ8zGNE/DoidoyIofILdrh78QzmY+21176TJik5pV5ArqaB/AmiMJ3E6AbpFCYPiUnzEax8Kg6BUp3A5I2lNXOoDpW4bk6FODcidugohMGHDP8hw8PDl8vnifxSLnFpQbB6+UbjQbAhMW5UwCqrrPLXiPiU8eXlH99h8KGJ4NkRccycOXOuUR8lRSJl0nZS6bIGs6kjWXSnmHHx4sU6kU9uzN2q5R/bYXLino2pPDgifrLmmmvejJFXDcGMqSpFH4wXYbaBBnOqGa6LTyahLMpcd911bx0aGjq/OQvwuRGxuPyjOkw9qLLcouGIjiNsq6666lXrr7/+rTSbenMnZ3HSy0sGQBsa4pIPttFGG922+uqrXzdjxoxfIXEjYn9nNzaVGh061KbzvhHxqIjYKiJ2iojdmkMi920ugrh7ROzSUAKK69aJiJXLN+vQoUOHDh06dOjQoUOHDh06dOjQoUOHDh06dOjQoUOHDh06dOjQoUOHDh06dOjQoUOHDh06DC7+D6Qbh7Ufr+tKAAAAAElFTkSuQmCC";
+                const pageWidth = pdf.internal.pageSize.getWidth();
+
+                if (logoData) {
+                    pdf.addImage(logoData, 'PNG', 35, 15, 16, 16);
+                }
+
+                pdf.setTextColor(0, 0, 0);
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(26);
+                pdf.text("UNITED FOOTBALL ACADEMY", 55, 27);
+                
+                pdf.setFontSize(18);
+                pdf.text("Tournament Transfer Request", pageWidth / 2, 40, { align: "center" });
+                
+                pdf.setFont("helvetica", "normal");
+                pdf.setFontSize(12);
+                pdf.text("Submit player transfer requests and documentation.", pageWidth / 2, 48, { align: "center" });
+                
+                let y = 65;
+
+                const readFile = (file) => new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => resolve(event.target.result);
+                    reader.readAsDataURL(file);
+                });
+
+                let textFields = [];
+                let fileFields = [];
+
+                for(const [k,v] of fd.entries()){
+                    if(v instanceof File && v.size > 0){ 
+                        fileFields.push({key: k, file: v});
+                    }
+                    else if (!(v instanceof File)) {
+                        textFields.push({key: k, val: v});
+                    }
+                }
+
+                // Draw text fields in 2 columns
+                let col = 0; 
+                let startX = 15;
+                let startX2 = 110;
+                
+                for (let i = 0; i < textFields.length; i++) {
+                    let field = textFields[i];
+                    let x = (col === 0) ? startX : startX2;
+                    
+                    if (y > 280) { pdf.addPage(); y = 20; }
+                    
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text(field.key + ": ", x, y);
+                    
+                    let textWidth = pdf.getTextWidth(field.key + ": ");
+                    pdf.setFont("helvetica", "normal");
+                    pdf.text(String(field.val), x + textWidth, y);
+                    
+                    if (col === 1) {
+                        y += 12;
+                        col = 0;
+                    } else {
+                        col = 1;
+                    }
+                }
+                
+                if (col === 1) y += 12;
+                y += 10;
+                
+                // Draw files
+                for (let i = 0; i < fileFields.length; i++) {
+                    let field = fileFields[i];
+                    let v = field.file;
+                    let k = field.key;
+                    
+                    if (y > 270) { pdf.addPage(); y = 20; }
+                    
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text(k + ": ", 15, y);
+                    let textWidth = pdf.getTextWidth(k + ": ");
+                    
+                    if (v.type.startsWith('image/')) {
+                        pdf.setFont("helvetica", "normal");
+                        pdf.text("See attached image below", 15 + textWidth, y);
+                        y += 5;
+                        try {
+                            const dataUrl = await readFile(v);
+                            if(y > 180) { pdf.addPage(); y = 20; }
+                            pdf.addImage(dataUrl, v.type.split('/')[1].toUpperCase(), 15, y, 100, 75);
+                            y += 85;
+                        } catch (err) {
+                            console.error("Image load failed", err);
+                            pdf.text("(Image load error)", 15, y + 5);
+                            y += 10;
+                        }
+                    } else {
+                        pdf.setFont("helvetica", "normal");
+                        pdf.text(v.name, 15 + textWidth, y);
+                        y += 12;
+                    }
+                }
+                
+                const totalPages = pdf.internal.getNumberOfPages();
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setFont("helvetica", "normal");
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(0, 0, 0);
+                    
+                    const now = new Date();
+                    const dateStr = now.toLocaleDateString('en-GB') + ', ' + now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+                    pdf.text(dateStr, 15, 10);
+                    
+                    const titleStr = "Tournaments | United Football Academy";
+                    const titleWidth = pdf.getTextWidth(titleStr);
+                    pdf.text(titleStr, pageWidth - titleWidth - 15, 10);
+                    
+                    const pageStr = "Page " + i + " of " + totalPages;
+                    const pageStrWidth = pdf.getTextWidth(pageStr);
+                    pdf.text(pageStr, pageWidth - pageStrWidth - 15, 290);
+                }
+                
+                pdf.save((fd.get("Team") || "Transfer") + "_Transfer_Form.pdf");
+                
+                transferForm.style.display = "none";
+                document.getElementById("transferMessage").style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>
