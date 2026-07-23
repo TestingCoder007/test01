@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Form | United Football Academy</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+      .form-wrapper {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        padding: 40px;
+        border-radius: 20px;
+        max-width: 600px;
+        margin: 0 auto;
+        color: var(--text-main);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+      .form-wrapper h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 24px;
+        background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 15px;
+        color: var(--text-main);
+        font-family: inherit;
+        transition: var(--transition);
+      }
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        background: rgba(0, 0, 0, 0.6);
+      }
+      .form-group input[type="date"] {
+        padding: 10px 15px;
+        color: var(--text-main);
+      }
+      ::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
+      .form-group textarea {
+        resize: vertical;
+        height: 100px;
+      }
+      .form-wrapper button {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 15px;
+        transition: var(--transition);
+      }
+      .form-wrapper button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+      }
+      .spinner {
+        display: none;
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--glass-border);
+        border-radius: 50%;
+        border-top-color: var(--accent-primary);
+        animation: spin 1s infinite linear;
+        margin: 20px auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .processing-message {
+        text-align: center;
+        font-size: 14px;
+        margin-top: 10px;
+        color: var(--text-muted);
+        display: none;
+      }
+    </style>
+</head>
+<body class="dark-theme">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="glass-nav">
+        <div class="nav-container">
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            
+            <a href="index.html" class="logo"><img src="images/ufa-logo.png" alt="UFA Logo">UNITED<span>FC</span></a>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-links">Home</a></li>
+                <li><a href="programs.html" class="nav-links">Program/Courses</a></li>
+                <li><a href="notices.html" class="nav-links">Notice</a></li>
+                <li><a href="tournaments.html" class="nav-links">Tournaments</a></li>
+                <li><a href="student.html" class="nav-links active-link">Student Section</a></li>
+                <li><a href="contact.html" class="nav-btn">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1 class="page-title">Admission <span class="gradient-text">Form</span></h1>
+        <p class="page-desc">Fill out the form below to apply to United Football Academy.</p>
+    </div>
+
+    <section class="info-block" style="padding-top: 0;">
+        <div class="section-container" style="max-width: 800px; text-align: center;">
+            <div class="form-wrapper reveal">
+                <h2>Form-A</h2>
+                <form id="userForm">
+                  <div class="form-group">
+                    <label for="sno">Adhaar no:</label>
+                    <input type="text" id="sno" name="sno" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <input type="text" id="gender" name="gender" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="class">Currently Studying In:</label>
+                    <input type="text" id="class" name="class" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="fatherName">Father’s Name:</label>
+                    <input type="text" id="fatherName" name="fatherName" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="motherName">Mother’s Name:</label>
+                    <input type="text" id="motherName" name="motherName" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="email">Email ID:</label>
+                    <input type="email" id="email" name="email" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="mobileNo">Mobile No:</label>
+                    <input type="text" id="mobileNo" name="mobileNo" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="address">Address:</label>
+                    <input type="text" id="address" name="address" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="dob">Date of Birth:</label>
+                    <input type="date" id="dob" name="dob" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="physicalProblem">Any Physical Problem:</label>
+                    <textarea id="physicalProblem" name="physicalProblem"></textarea>
+                  </div>
+                  <button type="submit">Submit Form & Download PDF</button>
+                </form>
+                <div class="spinner" id="spinner"></div>
+                <div class="processing-message" id="processingMessage">Processing and generating PDF...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="logo"><img src="images/ufa-logo.png" alt="UFA Logo">UNITED<span>FC</span></a>
+                <p>Creating skilled players who embody sportsmanship and teamwork.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Important Links</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="notices.html">Career</a></li>
+                    <li><a href="contact.html">About Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Follow Us</h4>
+                <div class="social-icons">
+                    <a href="https://wa.me/918791393986" target="_blank" aria-label="WhatsApp">WA</a>
+                    <a href="https://www.instagram.com/unitedfootballacademy00/" target="_blank" aria-label="Instagram">IG</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 United Football Academy. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+          var form = event.target;
+          var formData = new FormData(form);
+          var spinner = document.getElementById('spinner');
+          var processingMessage = document.getElementById('processingMessage');
+          var submitBtn = form.querySelector('button[type="submit"]');
+          
+          spinner.style.display = 'block';
+          processingMessage.style.display = 'block';
+          submitBtn.disabled = true;
+          submitBtn.style.opacity = '0.7';
+
+          fetch('https://script.google.com/macros/s/AKfycbxu7ELclDefns9jvm3yzVYj8MQbJB2H1yE1uyDBkRjkvbngFb3GOCcMZM-5uFQXH0Pd8w/exec', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            spinner.style.display = 'none';
+            processingMessage.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+
+            if (data.success) {
+              var byteCharacters = atob(data.pdf);
+              var byteNumbers = new Array(byteCharacters.length);
+              for (var i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+              }
+              var byteArray = new Uint8Array(byteNumbers);
+              var blob = new Blob([byteArray], {type: 'application/pdf'});
+              var link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = 'filled-form.pdf';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            } else {
+              alert('Error generating PDF. Please try again.');
+            }
+          })
+          .catch(error => {
+            spinner.style.display = 'none';
+            processingMessage.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            console.error('Error:', error);
+            alert('A network error occurred. Please try again.');
+          });
+        });
+    </script>
+</body>
+</html>
