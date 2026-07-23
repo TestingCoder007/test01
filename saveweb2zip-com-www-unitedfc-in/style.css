@@ -884,9 +884,10 @@ footer {
 @media (max-width: 992px) {
     .hero { flex-direction: column; text-align: center; padding-top: 150px; }
     .hero-cta { justify-content: center; }
-    .hero-image-container { margin-top: 60px; justify-content: center; }
+    .hero-image-container { margin-top: 60px; justify-content: center; width: 100%; }
     .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 40px; }
     .footer-content { grid-template-columns: 1fr 1fr; }
+    .hero-event-card { aspect-ratio: auto; padding: 40px 20px; }
 }
 
 @media (max-width: 768px) {
@@ -939,6 +940,31 @@ footer {
     .hero-title { font-size: 2.5rem; }
     .page-title { font-size: 2rem; }
     
+    .hero-cta {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .hero-cta .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .hero-event-card {
+        transform: perspective(1000px) rotateY(0deg) !important;
+        animation: none !important;
+        aspect-ratio: auto;
+    }
+
+    .card-title {
+        font-size: 1.8rem;
+    }
+    .card-title span {
+        font-size: 1.5rem;
+    }
+
     .whatsapp-float { bottom: 20px; right: 20px; width: 50px; height: 50px; }
     .whatsapp-icon { width: 30px; height: 30px; }
 }
