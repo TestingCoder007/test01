@@ -67,23 +67,24 @@
             <div class="hero-event-card">
                 <div class="card-glow"></div>
                 <div class="card-content">
-                    <div class="card-icon">🏆</div>
-                    <div class="card-subtitle">UPCOMING EVENT</div>
-                    <h3 class="card-title">UNITED PREMIER LEAGUE<br><span>SEASON 2</span></h3>
+                    <div class="card-icon">⚽</div>
+                    <div class="card-subtitle">UPCOMING TRIALS</div>
+                    <h3 class="card-title">TYGER IKF SEASON 6<br><span>ALIGARH TRIALS</span></h3>
                     
                     <div class="card-highlight">
-                        <span class="pulse-dot"></span> Registrations closed
+                        <span class="pulse-dot" style="background-color: #2ed573; box-shadow: 0 0 0 rgba(46,213,115,0.7);"></span> Registrations Open
                     </div>
                     
                     <ul class="card-details">
-                        <li><span>📅</span> may 2026</li>
-                        <li><span>📍</span> UFA Ground, Aligarh</li>
+                        <li><span>📅</span> 1 November 2026 · 8:00 AM</li>
+                        <li><span>📍</span> Ozone Football Club, Aligarh</li>
+                        <li><span>💰</span> ₹125 · Free for Girls</li>
                     </ul>
                     
                     <hr class="card-divider">
                     
-                    <a href="notices.html" class="card-btn">
-                        Register Now <span class="arrow">→</span>
+                    <a href="notice-ikf6.html" class="card-btn">
+                        View Details <span class="arrow">→</span>
                     </a>
                 </div>
             </div>
@@ -245,5 +246,511 @@
     </a>
 
     <script src="script.js"></script>
+
+    <!-- IKF Season 6 Secret Reveal Popup -->
+    <div id="ikf6-popup-overlay" class="ikf6-popup-overlay" role="dialog" aria-modal="true" aria-label="Tyger IKF Season 6 Aligarh Trials Announcement">
+        <div class="ikf6-popup-wrapper">
+            <!-- Close Button -->
+            <button class="ikf6-popup-close" id="ikf6-popup-close" aria-label="Close popup" title="Close">&times;</button>
+            
+            <div class="ikf6-flip-card" id="ikf6-flip-card" role="button" tabindex="0" aria-label="Tap card to reveal the surprise">
+                <div class="ikf6-flip-inner" id="ikf6-flip-inner">
+                    
+                    <!-- Front Face (Secret Card) -->
+                    <div class="ikf6-face ikf6-front">
+                        <div class="ikf6-field-lines"></div>
+                        <div class="ikf6-football-watermark">⚽</div>
+                        <div class="ikf6-front-content">
+                            <div class="ikf6-secret-badge">CLASSIFIED • TOP SECRET</div>
+                            <div class="ikf6-secret-icon" aria-hidden="true">🤫</div>
+                            <h2 class="ikf6-secret-heading">Kissi ko mat batana… 🤫</h2>
+                            <p class="ikf6-secret-subtext">Ek secret hai tumhare liye… 👀</p>
+                            <div class="ikf6-tap-pill">
+                                <span class="ikf6-tap-hand">👆</span>
+                                <span>Tap to reveal the surprise!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Back Face (Revealed Announcement) -->
+                    <div class="ikf6-face ikf6-back">
+                        <div class="ikf6-field-lines"></div>
+                        <div class="ikf6-back-content">
+                            <div class="ikf6-season-pill">⚽ TYGER IKF SEASON 6</div>
+                            <h2 class="ikf6-revealed-title">TYGER IKF SEASON 6</h2>
+                            <h3 class="ikf6-revealed-sub">ALIGARH TRIALS ARE HERE!</h3>
+                            
+                            <div class="ikf6-highlight-box">
+                                <div class="ikf6-info-row">
+                                    <span class="ikf6-icon">📅</span>
+                                    <span><strong>1 November 2026</strong> · Reporting <strong>8:00 AM</strong></span>
+                                </div>
+                                <div class="ikf6-info-row">
+                                    <span class="ikf6-icon">📍</span>
+                                    <span><strong>Ozone Football Club</strong>, Aligarh</span>
+                                </div>
+                                <div class="ikf6-info-row">
+                                    <span class="ikf6-icon">🤝</span>
+                                    <span>In association with <strong>United Football Academy</strong></span>
+                                </div>
+                                <div class="ikf6-info-row">
+                                    <span class="ikf6-icon">👥</span>
+                                    <span>Boys &amp; Girls · Born <strong>2009 – 2016</strong></span>
+                                </div>
+                                <div class="ikf6-info-row">
+                                    <span class="ikf6-icon">💰</span>
+                                    <span>₹125 · <strong style="color:#2ed573;">Free Trials for Girls</strong></span>
+                                </div>
+                            </div>
+
+                            <a href="https://indiakhelofootball.com/season6" target="_blank" rel="noopener noreferrer" class="ikf6-cta-btn">
+                                Register Now →
+                            </a>
+
+                            <a href="notice-ikf6.html" class="ikf6-more-link">
+                                View Full Event Details &amp; Player Pathway
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* ===== IKF Season 6 Secret Reveal Popup Styles ===== */
+        .ikf6-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 5, 8, 0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        .ikf6-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ikf6-popup-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .ikf6-popup-close {
+            position: absolute;
+            top: -14px;
+            right: -14px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #161b22;
+            border: 2px solid rgba(0, 242, 254, 0.4);
+            color: #ffffff;
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+        }
+
+        .ikf6-popup-close:hover,
+        .ikf6-popup-close:focus {
+            background: #ff4757;
+            border-color: #ff6b81;
+            transform: scale(1.1) rotate(90deg);
+            outline: none;
+        }
+
+        /* 3D Flip Card Container */
+        .ikf6-flip-card {
+            width: 100%;
+            height: 490px;
+            perspective: 1200px;
+            cursor: pointer;
+            outline: none;
+            border-radius: 24px;
+        }
+
+        .ikf6-flip-card:focus-visible {
+            box-shadow: 0 0 0 3px #00f2fe;
+        }
+
+        .ikf6-flip-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 242, 254, 0.15);
+        }
+
+        .ikf6-flip-card.is-flipped .ikf6-flip-inner {
+            transform: rotateY(180deg);
+            cursor: default;
+        }
+
+        /* Card Faces */
+        .ikf6-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 35px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        /* Front Face (Secret) */
+        .ikf6-front {
+            background: radial-gradient(circle at 50% 20%, #1a2234 0%, #0c1017 100%);
+            border-color: rgba(0, 242, 254, 0.25);
+            transform: rotateY(0deg);
+        }
+
+        /* Back Face (Revealed) */
+        .ikf6-back {
+            background: radial-gradient(circle at 50% 10%, #11253e 0%, #0a0d14 100%);
+            border-color: rgba(79, 172, 254, 0.35);
+            transform: rotateY(180deg);
+        }
+
+        /* Football Pitch Themed Visual Accents */
+        .ikf6-field-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at center, transparent 40px, rgba(255, 255, 255, 0.03) 41px, rgba(255, 255, 255, 0.03) 42px, transparent 43px),
+                linear-gradient(to bottom, transparent 49%, rgba(255, 255, 255, 0.03) 50%, transparent 51%);
+            pointer-events: none;
+        }
+
+        .ikf6-football-watermark {
+            position: absolute;
+            font-size: 140px;
+            opacity: 0.04;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .ikf6-front-content,
+        .ikf6-back-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ikf6-secret-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            letter-spacing: 2.5px;
+            font-weight: 700;
+            color: #00f2fe;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ikf6-secret-icon {
+            font-size: 4.2rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+            animation: ikf6Float 2.8s ease-in-out infinite;
+        }
+
+        @keyframes ikf6Float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .ikf6-secret-heading {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+            line-height: 1.25;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .ikf6-secret-subtext {
+            color: #b0b8c4;
+            font-size: 1.1rem;
+            margin-bottom: 28px;
+            font-weight: 400;
+        }
+
+        .ikf6-tap-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            color: #050a14;
+            padding: 13px 28px;
+            border-radius: 30px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            user-select: none;
+        }
+
+        .ikf6-flip-card:hover .ikf6-tap-pill {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.5);
+        }
+
+        .ikf6-tap-hand {
+            font-size: 1.25rem;
+            animation: ikf6TapMove 1.4s infinite ease-in-out;
+        }
+
+        @keyframes ikf6TapMove {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Revealed Back Face Styling */
+        .ikf6-season-pill {
+            background: rgba(0, 242, 254, 0.12);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .ikf6-revealed-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            line-height: 1.15;
+            letter-spacing: 0.5px;
+        }
+
+        .ikf6-revealed-sub {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.12rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .ikf6-highlight-box {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 16px;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .ikf6-info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.88rem;
+            color: #d0d7de;
+            line-height: 1.4;
+        }
+
+        .ikf6-info-row strong {
+            color: #ffffff;
+        }
+
+        .ikf6-info-row .ikf6-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            width: 22px;
+            text-align: center;
+        }
+
+        .ikf6-cta-btn {
+            display: inline-block;
+            width: 100%;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            color: #050a14 !important;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.05rem;
+            text-decoration: none;
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            margin-bottom: 10px;
+        }
+
+        .ikf6-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(0, 242, 254, 0.55);
+        }
+
+        .ikf6-more-link {
+            color: #8b949e;
+            font-size: 0.82rem;
+            text-decoration: underline;
+            transition: color 0.2s ease;
+        }
+
+        .ikf6-more-link:hover {
+            color: #00f2fe;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+            .ikf6-flip-card {
+                height: 500px;
+            }
+            .ikf6-face {
+                padding: 28px 20px;
+            }
+            .ikf6-secret-heading {
+                font-size: 1.55rem;
+            }
+            .ikf6-revealed-title {
+                font-size: 1.45rem;
+            }
+            .ikf6-revealed-sub {
+                font-size: 1rem;
+            }
+            .ikf6-info-row {
+                font-size: 0.82rem;
+                gap: 8px;
+            }
+            .ikf6-popup-close {
+                top: -10px;
+                right: -10px;
+                width: 36px;
+                height: 36px;
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+
+    <script>
+    // Tyger IKF Season 6 Secret Reveal Popup Controller
+    (function() {
+        var STORAGE_KEY = 'ikf6_popup_dismissed_s6';
+        
+        // Prevent repeatedly interrupting visitors after dismissal
+        if (sessionStorage.getItem(STORAGE_KEY)) {
+            return;
+        }
+
+        var overlay = document.getElementById('ikf6-popup-overlay');
+        var card = document.getElementById('ikf6-flip-card');
+        var closeBtn = document.getElementById('ikf6-popup-close');
+
+        if (!overlay || !card) return;
+
+        // Auto display popup on first open (short natural delay)
+        setTimeout(function() {
+            overlay.classList.add('active');
+        }, 700);
+
+        // Card flip on tap / click / enter key
+        function triggerFlip() {
+            if (!card.classList.contains('is-flipped')) {
+                card.classList.add('is-flipped');
+            }
+        }
+
+        card.addEventListener('click', function(e) {
+            // If clicking CTA or Details link on the back, don't re-flip
+            if (e.target.closest('a') || e.target.closest('button')) {
+                return;
+            }
+            triggerFlip();
+        });
+
+        card.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (!e.target.closest('a')) {
+                    e.preventDefault();
+                    triggerFlip();
+                }
+            }
+        });
+
+        // Dismiss popup logic
+        function dismissPopup() {
+            overlay.classList.remove('active');
+            sessionStorage.setItem(STORAGE_KEY, 'true');
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dismissPopup();
+            });
+        }
+
+        // Click outside the card to dismiss
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                dismissPopup();
+            }
+        });
+
+        // Accessible Escape key dismissal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                dismissPopup();
+            }
+        });
+    })();
+    </script>
 </body>
 </html>
